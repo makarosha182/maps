@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Яндекс Карты - Реклама</title>
+    <link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+    <div class="container">
+        <!-- Карта с изображением -->
+        <div class="map-container">
+            <div class="image-map">
+                <img src="https://sun9-78.userapi.com/s/v1/if2/YgBqppJOa7J5Ff94pJYvDeWOpAzedfLgIbZdVOKdkchTKCeS3ojKbfpl4XRtzPJSVjhsBsO-qAA0cRMHkoos7Txl.jpg?quality=95&as=32x22,48x34,72x51,108x76,160x112,240x169,360x253,480x337,540x379,640x450,720x506,1080x759,1280x899,1440x1012,1882x1322&from=bu&cs=1882x0" alt="Карта Москвы" class="map-image">
+                
+                <!-- Маркер организации -->
+                <div class="organization-marker" id="organizationMarker" style="top: 50%; left: 45%;">
+                    <div class="shawarma-icon" id="shawarmaIcon">🌯</div>
+                    <div class="price-tag" id="priceTag">50₽</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карточка управления рекламой -->
+        <div class="control-card">
+            <div class="organization-header">
+                <div class="organization-icon">🌯</div>
+                <div class="organization-info">
+                    <h3>Ларек с шаурмой</h3>
+                    <p>ул. Тверская, 15</p>
+                </div>
+            </div>
+
+            <div class="monetization-section">
+                <p class="description">Вашу рекламу увидят в Яндекс Картах, Поиске и GO</p>
+                
+                <div class="slider-container">
+                    <div class="slider-label">Размер рекламы</div>
+                    <div class="slider-wrapper">
+                        <input 
+                            type="range" 
+                            id="adSlider" 
+                            class="ad-slider" 
+                            min="1" 
+                            max="5" 
+                            value="1" 
+                            step="1"
+                        >
+                        <div class="slider-thumb" id="sliderThumb">
+                            <span class="thumb-icon">🌯</span>
+                        </div>
+                    </div>
+                    <div class="slider-labels">
+                        <span>Мало</span>
+                        <span>Много</span>
+                    </div>
+                </div>
+
+                <div class="pricing-info">
+                    <div class="current-price">
+                        <span class="price-label">Стоимость в день:</span>
+                        <span class="price-value" id="dailyPrice">50₽</span>
+                    </div>
+                    <div class="visibility-info">
+                        <span class="visibility-label">Охват в 3 сервисах:</span>
+                        <span class="visibility-value" id="reachCount">~500 человек</span>
+                    </div>
+                </div>
+
+                <button class="payment-button" id="paymentButton">
+                    <span class="payment-icon">💳</span>
+                    Оплатить рекламу
+                </button>
+            </div>
+        </div>
+
+        <!-- Модальное окно оплаты -->
+        <div class="payment-modal" id="paymentModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Оплата рекламы</h3>
+                    <button class="close-button" id="closeModal">&times;</button>
+                </div>
+                <div class="payment-details">
+                    <div class="card-info">
+                        <div class="card-icon">💳</div>
+                        <div class="card-text">
+                            <div class="card-number">**** **** **** 1234</div>
+                            <div class="card-type">Сбербанк</div>
+                        </div>
+                    </div>
+                    <div class="payment-summary">
+                        <div class="summary-item">
+                            <span>Реклама на 30 дней в Картах, Поиске и GO:</span>
+                            <span id="totalAmount">1500₽</span>
+                        </div>
+                    </div>
+                    <button class="confirm-payment" id="confirmPayment">
+                        Подтвердить оплату
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

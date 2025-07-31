@@ -1,0 +1,619 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    min-height: -webkit-fill-available; /* iOS Safari */
+    padding: 0;
+    margin: 0;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+    width: 100%;
+    max-width: 393px; /* iPhone 16 width */
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100vh;
+    height: -webkit-fill-available; /* iOS Safari */
+    padding: 12px;
+    box-sizing: border-box;
+}
+
+/* Карта с изображением */
+.map-container {
+    flex: 1;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    position: relative;
+    min-height: 300px;
+    max-height: 500px;
+}
+
+.image-map {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.map-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 20px;
+}
+
+/* Маркер организации */
+.organization-marker {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 20;
+    transition: all 0.3s ease;
+    transform: translate(-50%, -50%);
+}
+
+.shawarma-icon {
+    font-size: 32px;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    transition: all 0.3s ease;
+    cursor: pointer;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-5px);
+    }
+    60% {
+        transform: translateY(-3px);
+    }
+}
+
+.shawarma-icon:hover {
+    transform: scale(1.1) translateY(-5px);
+}
+
+.price-tag {
+    background: #ff6b6b;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+/* Размеры иконки на карте в зависимости от ползунка */
+.shawarma-icon.size-1 { font-size: 28px; }
+.shawarma-icon.size-2 { font-size: 36px; }
+.shawarma-icon.size-3 { font-size: 44px; }
+.shawarma-icon.size-4 { font-size: 52px; }
+.shawarma-icon.size-5 { font-size: 60px; }
+
+/* iOS optimizations */
+html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Убираем highlight при касании */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+}
+
+/* Разрешаем выделение текста только где нужно */
+.organization-info h3,
+.organization-info p,
+.pricing-info,
+.slider-labels {
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+/* Smooth scrolling для iOS */
+.payment-modal {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Улучшенная анимация для кнопок на touch устройствах */
+@media (hover: none) and (pointer: coarse) {
+    .close-button:active {
+        transform: scale(0.9);
+        opacity: 0.7;
+    }
+}
+
+/* Карточка управления */
+.control-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
+    padding: 24px 20px;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    z-index: 10;
+}
+
+.organization-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.organization-icon {
+    font-size: 48px;
+    background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+    padding: 10px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(251, 177, 160, 0.3);
+}
+
+.organization-info h3 {
+    color: #2d3436;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.organization-info p {
+    color: #636e72;
+    font-size: 14px;
+}
+
+.monetization-section h4 {
+    color: #2d3436;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.description {
+    color: #2d3436;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 18px;
+    line-height: 1.4;
+}
+
+/* Ползунок */
+.slider-container {
+    margin-bottom: 16px;
+}
+
+.slider-label {
+    color: #2d3436;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+.slider-wrapper {
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.ad-slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, #e1f5fe, #0277bd);
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+.ad-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: white;
+    border: 4px solid #0277bd;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(2, 119, 189, 0.4);
+    transition: all 0.3s ease;
+    -webkit-appearance: none;
+}
+
+.ad-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(2, 119, 189, 0.4);
+}
+
+.ad-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #0277bd;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(2, 119, 189, 0.3);
+}
+
+.slider-thumb {
+    position: absolute;
+    top: -10px;
+    left: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.thumb-icon {
+    font-size: 20px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #636e72;
+}
+
+/* Информация о цене */
+.pricing-info {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 18px;
+}
+
+.current-price, .visibility-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.current-price:last-child, .visibility-info:last-child {
+    margin-bottom: 0;
+}
+
+.price-label, .visibility-label {
+    color: #636e72;
+    font-size: 14px;
+}
+
+.price-value {
+    color: #00b894;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.visibility-value {
+    color: #0984e3;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+
+
+/* Кнопка оплаты */
+.payment-button {
+    width: 100%;
+    background: linear-gradient(135deg, #00b894, #00a085);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 20px 24px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 8px 32px rgba(0, 184, 148, 0.4);
+    transition: all 0.3s ease;
+    min-height: 56px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.payment-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 184, 148, 0.4);
+}
+
+.payment-button:active {
+    transform: translateY(0);
+}
+
+.payment-icon {
+    font-size: 18px;
+}
+
+/* Модальное окно */
+.payment-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.payment-modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 24px;
+    padding: 0;
+    max-width: 360px;
+    width: calc(100% - 32px);
+    overflow: hidden;
+    animation: slideUp 0.3s ease;
+    margin: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.payment-details {
+    padding: 20px;
+}
+
+.card-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.card-icon {
+    font-size: 24px;
+}
+
+.card-number {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3436;
+    margin-bottom: 4px;
+}
+
+.card-type {
+    font-size: 14px;
+    color: #636e72;
+}
+
+.payment-summary {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+}
+
+.summary-item span:last-child {
+    font-weight: 600;
+    color: #00b894;
+}
+
+.confirm-payment {
+    width: 100%;
+    background: linear-gradient(135deg, #00b894, #00a085);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    padding: 18px 20px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 54px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.confirm-payment:hover {
+    background: linear-gradient(135deg, #00a085, #00b894);
+}
+
+/* iPhone 16 и мобильная адаптивность */
+@media (max-width: 430px) {
+    body {
+        padding: 8px;
+        padding-top: max(8px, env(safe-area-inset-top));
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
+    }
+    
+    .container {
+        gap: 12px;
+        padding: 0;
+        max-width: none;
+    }
+    
+    .map-container {
+        border-radius: 20px;
+        min-height: 280px;
+    }
+    
+    .control-card {
+        border-radius: 20px;
+        padding: 20px 16px;
+        margin: 0;
+    }
+    
+    .organization-header {
+        gap: 12px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+    }
+    
+    .organization-icon {
+        font-size: 40px;
+        padding: 8px;
+        border-radius: 12px;
+    }
+    
+    .slider-container {
+        margin-bottom: 16px;
+    }
+    
+    .pricing-info {
+        padding: 12px;
+        margin-bottom: 16px;
+        border-radius: 16px;
+    }
+    
+    .payment-button {
+        padding: 18px 20px;
+        font-size: 16px;
+        border-radius: 18px;
+        min-height: 52px;
+    }
+}
+
+/* iPhone 16 в портретной ориентации */
+@media screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) {
+    .container {
+        max-width: 393px;
+    }
+    
+    .map-container {
+        max-height: 450px;
+    }
+}
+
+/* Touch устройства */
+@media (hover: none) and (pointer: coarse) {
+    .payment-button:hover {
+        transform: none;
+    }
+    
+    .payment-button:active {
+        transform: scale(0.98);
+        box-shadow: 0 4px 16px rgba(0, 184, 148, 0.5);
+    }
+    
+    .ad-slider::-webkit-slider-thumb:hover {
+        transform: none;
+    }
+    
+    .ad-slider::-webkit-slider-thumb:active {
+        transform: scale(1.1);
+    }
+    
+    .shawarma-icon:hover {
+        transform: none;
+    }
+    
+    .shawarma-icon:active {
+        transform: scale(1.1);
+    }
+}
+
+/* Кастомные маркеры для Яндекс.Карт */
+.custom-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.marker-icon {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    transition: all 0.3s ease;
+}
+
+.marker-price {
+    background: #ff6b6b;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    white-space: nowrap;
+} 
