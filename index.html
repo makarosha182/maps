@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Яндекс Карты - Размещение рекламы</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Единый контейнер карты и информации -->
+        <section class="organization-card">
+            <!-- Карта -->
+            <div class="map-section">
+                <div class="image-map">
+                    <img src="https://sun9-78.userapi.com/s/v1/if2/YgBqppJOa7J5Ff94pJYvDeWOpAzedfLgIbZdVOKdkchTKCeS3ojKbfpl4XRtzPJSVjhsBsO-qAA0cRMHkoos7Txl.jpg?quality=95&as=32x22,48x34,72x51,108x76,160x112,240x169,360x253,480x337,540x379,640x450,720x506,1080x759,1280x899,1440x1012,1882x1322&from=bu&cs=1882x0" 
+                         alt="Карта Москвы" 
+                         class="map-image">
+                    
+                    <!-- Маркер организации -->
+                    <div class="organization-marker" id="organizationMarker" style="top: 50%; left: 45%;">
+                        <div class="shawarma-icon size-1" id="shawarmaIcon">🌯</div>
+                        <div class="price-tag" id="priceTag">50₽</div>
+                        <div class="wow-badge" id="wowBadge" style="display: none;">WOW!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Информация об организации и управление -->
+            <div class="control-section">
+            <!-- Заголовок организации -->
+            <header class="organization-header">
+                <div class="organization-icon">🌯</div>
+                <div class="organization-info">
+                    <h1>Ларек с шаурмой</h1>
+                    <p>ул. Тверская, 15</p>
+                    <div class="rating">
+                        <div class="stars">
+                            <span class="star filled">⭐</span>
+                            <span class="star filled">⭐</span>
+                            <span class="star filled">⭐</span>
+                            <span class="star half">⭐</span>
+                            <span class="star">⭐</span>
+                        </div>
+                        <span class="rating-value">3.4</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Секция монетизации -->
+            <div class="monetization-section">
+                <p class="description">Вашу рекламу увидят в Яндекс Картах, Поиске и GO</p>
+                
+                <!-- Ползунок -->
+                <div class="slider-container">
+                    <label for="adSlider" class="slider-label">Размер рекламы</label>
+                    <div class="slider-wrapper">
+                        <input type="range" 
+                               id="adSlider" 
+                               class="ad-slider" 
+                               min="1" 
+                               max="5" 
+                               value="1" 
+                               step="1"
+                               aria-label="Уровень рекламы">
+                    </div>
+                    <div class="slider-labels">
+                        <span>Мало</span>
+                        <span>Много</span>
+                    </div>
+                </div>
+
+                <!-- Информация о ценах -->
+                <div class="pricing-info">
+                    <div class="current-price">
+                        <span class="price-label">Стоимость в день:</span>
+                        <span class="price-value" id="dailyPrice">50₽</span>
+                    </div>
+                    <div class="visibility-info">
+                        <span class="visibility-label">Охват в 3 сервисах:</span>
+                        <span class="visibility-value" id="reachCount">~500 человек</span>
+                    </div>
+                </div>
+
+                <!-- Кнопка оплаты -->
+                <button class="payment-button" id="paymentButton" type="button">
+                    <span class="payment-icon" aria-hidden="true">💳</span>
+                    Оплатить рекламу
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Модальное окно оплаты -->
+    <div class="payment-modal" id="paymentModal" role="dialog" aria-labelledby="modal-title" aria-hidden="true">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2 id="modal-title">Оплата рекламы</h2>
+                <button class="close-button" id="closeModal" type="button" aria-label="Закрыть">&times;</button>
+            </header>
+            
+            <div class="payment-details">
+                <!-- Информация о карте -->
+                <div class="card-info">
+                    <div class="card-icon" aria-hidden="true">💳</div>
+                    <div class="card-text">
+                        <div class="card-number">**** **** **** 1234</div>
+                        <div class="card-type">Сбербанк</div>
+                    </div>
+                </div>
+                
+                <!-- Сводка оплаты -->
+                <div class="payment-summary">
+                    <div class="summary-item">
+                        <span>Реклама на 30 дней в Картах, Поиске и GO:</span>
+                        <span id="totalAmount">1500₽</span>
+                    </div>
+                </div>
+                
+                <!-- Кнопка подтверждения -->
+                <button class="confirm-payment" id="confirmPayment" type="button">
+                    Подтвердить оплату
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
