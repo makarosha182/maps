@@ -5,9 +5,8 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 import logging
-import asyncio
-from claude_service import SivasAdvisorService
-from config import API_HOST, API_PORT
+import os
+import anthropic
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -23,32 +22,33 @@ app = FastAPI(
 # Setup templates
 templates = Jinja2Templates(directory="templates")
 
-# Mount static files (we'll create this directory)
+# Mount static files
 try:
     app.mount("/static", StaticFiles(directory="static"), name="static")
 except RuntimeError:
-    # Directory doesn't exist yet, will be created
     pass
 
-# Initialize the advisor service
-advisor_service = None
+# Initialize Claude client
+claude_client = None
+CLAUDE_API_KEY = os.getenv("CLAUDE_API_KEY")
 
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global advisor_service
+    global claude_client
     try:
-        logger.info("Initializing Sivas Advisor Service...")
-        advisor_service = SivasAdvisorService()
-        logger.info("Service initialized successfully!")
+        if CLAUDE_API_KEY:
+            claude_client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
+            logger.info("Claude client initialized successfully!")
+        else:
+            logger.warning("CLAUDE_API_KEY not found")
     except Exception as e:
-        logger.error(f"Failed to initialize advisor service: {e}")
-        raise
+        logger.error(f"Failed to initialize Claude client: {e}")
 
 # Pydantic models
 class QueryRequest(BaseModel):
     query: str
-    language: Optional[str] = "ru"
+    language: Optional[str] = "en"
 
 class QueryResponse(BaseModel):
     query: str
@@ -59,11 +59,69 @@ class QueryResponse(BaseModel):
 class SuggestionsResponse(BaseModel):
     suggestions: List[str]
 
+def get_sample_suggestions():
+    """Get sample questions"""
+    return [
+        "What are the main attractions in Sivas?",
+        "Tell me about Sivas history",
+        "What is the best time to visit Sivas?",
+        "What are traditional foods in Sivas?",
+        "How to get to Sivas?"
+    ]
+
+def get_claude_response(query: str) -> str:
+    """Get response from Claude"""
+    if not claude_client:
+        return "Sorry, the AI service is not available at the moment."
+    
+    try:
+        system_prompt = """You are an expert tourism consultant and local guide for the city of Sivas, Turkey.
+Your goal is to provide helpful, informative, and friendly answers about Sivas to tourists and visitors. You should:
+
+- Answer questions naturally and comprehensively about Sivas
+- Include historical, cultural, and practical information
+- Provide specific details when possible (names, locations, recommendations)
+- Be enthusiastic and welcoming about Sivas tourism
+- If you don't know specific current information, be honest about it
+
+Topics you can discuss include:
+- Tourist attractions and landmarks
+- Historical sites and museums
+- Local cuisine and restaurants
+- Cultural events and festivals
+- Transportation and accommodation
+- Shopping and local crafts
+- Weather and best times to visit
+- Local customs and traditions
+- Government and demographics
+- Geography and nature
+
+Always respond in a helpful, friendly, and informative manner."""
+
+        message = claude_client.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=1000,
+            temperature=0.7,
+            system=system_prompt,
+            messages=[
+                {
+                    "role": "user",
+                    "content": query
+                }
+            ]
+        )
+        
+        return message.content[0].text
+        
+    except Exception as e:
+        logger.error(f"Claude API error: {e}")
+        return f"Sorry, I encountered an error while processing your question. Please try again later."
+
 # API Routes
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     """Home page with chat interface"""
-    suggestions = advisor_service.get_suggestions() if advisor_service else []
+    suggestions = get_sample_suggestions()
     return templates.TemplateResponse("index.html", {
         "request": request,
         "suggestions": suggestions
@@ -72,21 +130,17 @@ async def home(request: Request):
 @app.post("/api/ask", response_model=QueryResponse)
 async def ask_question(query_request: QueryRequest):
     """Ask a question about Sivas"""
-    if not advisor_service:
-        raise HTTPException(status_code=503, detail="Advisor service not available")
-    
     if not query_request.query.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty")
     
     try:
-        # Get advice from the service
-        result = advisor_service.get_advice(query_request.query)
+        response = get_claude_response(query_request.query)
         
         return QueryResponse(
-            query=result['query'],
-            response=result['response'],
-            sources=result['sources'],
-            context_used=result['context_used']
+            query=query_request.query,
+            response=response,
+            sources=[],  # No sources in simple version
+            context_used=False
         )
     
     except Exception as e:
@@ -96,10 +150,7 @@ async def ask_question(query_request: QueryRequest):
 @app.get("/api/suggestions", response_model=SuggestionsResponse)
 async def get_suggestions():
     """Get sample questions"""
-    if not advisor_service:
-        raise HTTPException(status_code=503, detail="Advisor service not available")
-    
-    suggestions = advisor_service.get_suggestions()
+    suggestions = get_sample_suggestions()
     return SuggestionsResponse(suggestions=suggestions)
 
 @app.get("/api/health")
@@ -107,24 +158,15 @@ async def health_check():
     """Health check endpoint"""
     return {
         "status": "healthy",
-        "service_available": advisor_service is not None
+        "claude_available": claude_client is not None
     }
-
-@app.exception_handler(500)
-async def internal_error_handler(request: Request, exc: Exception):
-    """Handle internal server errors"""
-    logger.error(f"Internal error: {exc}")
-    return JSONResponse(
-        status_code=500,
-        content={"detail": "Internal server error occurred"}
-    )
 
 if __name__ == "__main__":
     import uvicorn
+    port = int(os.getenv("PORT", 8000))
     uvicorn.run(
-        "main:app",
-        host=API_HOST,
-        port=API_PORT,
-        reload=True,
+        "simple_main:app",
+        host="0.0.0.0",
+        port=port,
         log_level="info"
     )
