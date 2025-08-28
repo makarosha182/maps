@@ -38,17 +38,29 @@ async def startup_event():
     global claude_client
     try:
         if CLAUDE_API_KEY:
-            # Simple initialization without any extra parameters
-            claude_client = anthropic.Anthropic(
-                api_key=CLAUDE_API_KEY
-            )
-            logger.info("Claude client initialized successfully!")
+            logger.info(f"Initializing Claude with API key: {CLAUDE_API_KEY[:10]}...")
+            
+            # Try different initialization methods
+            try:
+                # Method 1: Direct initialization
+                claude_client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
+                logger.info("Claude client initialized successfully with direct method!")
+            except Exception as e1:
+                logger.error(f"Direct method failed: {e1}")
+                try:
+                    # Method 2: Using Client class directly
+                    claude_client = anthropic.Client(api_key=CLAUDE_API_KEY)
+                    logger.info("Claude client initialized successfully with Client class!")
+                except Exception as e2:
+                    logger.error(f"Client class failed: {e2}")
+                    # Method 3: Fallback without client
+                    claude_client = None
+                    logger.error("All Claude initialization methods failed")
         else:
             logger.warning("CLAUDE_API_KEY not found")
+            claude_client = None
     except Exception as e:
-        logger.error(f"Failed to initialize Claude client: {e}")
-        logger.error(f"Error details: {type(e).__name__}: {str(e)}")
-        # Continue without Claude client
+        logger.error(f"Unexpected error in startup: {e}")
         claude_client = None
 
 # Pydantic models
