@@ -9,13 +9,18 @@ class UnsplashImageService:
     """Service for searching and retrieving images from Unsplash"""
     
     def __init__(self):
-        # Using Unsplash Source API (no API key required for basic usage)
-        self.base_url = "https://source.unsplash.com"
+        # Using official Unsplash API
+        self.base_url = "https://api.unsplash.com"
         self.search_url = "https://api.unsplash.com/search/photos"
         
-        # Unsplash API key (optional, for better quota and features)
-        # For now using source.unsplash.com which doesn't require API key
-        self.api_key = None
+        # Unsplash API credentials
+        self.access_key = "8bopXYR-oZP1zKvbHx86c5CTQkjLkt7eoQarlEyuWdU"
+        self.secret_key = "Ji9nwTInIi7vgVuXJt-JzcW2MqkiqQh768VcUPtsnUA"
+        
+        self.headers = {
+            "Authorization": f"Client-ID {self.access_key}",
+            "Content-Type": "application/json"
+        }
         
     def extract_keywords_for_images(self, text: str, query: str) -> List[str]:
         """Extract relevant keywords for image search from Claude's response and user query"""
@@ -65,42 +70,81 @@ class UnsplashImageService:
         return keywords[:3]  # Limit to 3 most relevant keywords
     
     def search_images(self, keywords: List[str], limit: int = 3) -> List[Dict]:
-        """Search for images using Unsplash Source API"""
+        """Search for images using official Unsplash API"""
         images = []
         
-        for i, keyword in enumerate(keywords[:limit]):
+        for keyword in keywords[:limit]:
             try:
-                # Using Unsplash Source API for direct image URLs
-                # Format: https://source.unsplash.com/800x600/?keyword
-                clean_keyword = keyword.replace(" ", ",")
-                image_url = f"{self.base_url}/800x600/?{clean_keyword}"
+                # Search using official Unsplash API
+                params = {
+                    "query": keyword,
+                    "per_page": 1,
+                    "orientation": "landscape"
+                }
                 
-                # Verify image exists by making a HEAD request
-                response = requests.head(image_url, timeout=5)
+                response = requests.get(
+                    self.search_url, 
+                    headers=self.headers, 
+                    params=params, 
+                    timeout=10
+                )
+                
                 if response.status_code == 200:
-                    images.append({
-                        "url": image_url,
-                        "alt": f"Image related to {keyword}",
-                        "title": keyword.title(),
-                        "source": "Unsplash"
-                    })
-                    logger.info(f"Found image for keyword: {keyword}")
+                    data = response.json()
+                    
+                    if data.get("results") and len(data["results"]) > 0:
+                        photo = data["results"][0]
+                        
+                        images.append({
+                            "url": photo["urls"]["regular"],  # High quality image
+                            "thumb_url": photo["urls"]["small"],  # Thumbnail
+                            "alt": photo.get("alt_description", f"Image related to {keyword}"),
+                            "title": keyword.title(),
+                            "source": "Unsplash",
+                            "photographer": photo["user"]["name"],
+                            "photographer_url": photo["user"]["links"]["html"]
+                        })
+                        logger.info(f"Found image for keyword: {keyword}")
+                    else:
+                        logger.warning(f"No images found for keyword: {keyword}")
                 else:
-                    logger.warning(f"Image not found for keyword: {keyword}")
+                    logger.error(f"Unsplash API error for '{keyword}': {response.status_code}")
                     
             except Exception as e:
                 logger.error(f"Error searching image for '{keyword}': {e}")
                 continue
                 
-        # If no images found, add a default Sivas image
+        # If no images found, try a general Sivas search
         if not images:
-            default_url = f"{self.base_url}/800x600/?sivas,turkey,city"
-            images.append({
-                "url": default_url,
-                "alt": "Sivas, Turkey",
-                "title": "Sivas City",
-                "source": "Unsplash"
-            })
+            try:
+                params = {
+                    "query": "sivas turkey",
+                    "per_page": 1,
+                    "orientation": "landscape"
+                }
+                
+                response = requests.get(
+                    self.search_url, 
+                    headers=self.headers, 
+                    params=params, 
+                    timeout=10
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get("results") and len(data["results"]) > 0:
+                        photo = data["results"][0]
+                        images.append({
+                            "url": photo["urls"]["regular"],
+                            "thumb_url": photo["urls"]["small"],
+                            "alt": photo.get("alt_description", "Sivas, Turkey"),
+                            "title": "Sivas City",
+                            "source": "Unsplash",
+                            "photographer": photo["user"]["name"],
+                            "photographer_url": photo["user"]["links"]["html"]
+                        })
+            except Exception as e:
+                logger.error(f"Error getting default Sivas image: {e}")
             
         return images
     

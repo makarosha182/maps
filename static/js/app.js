@@ -135,9 +135,16 @@ class SivasAdvisor {
             images.forEach(image => {
                 const imageItem = document.createElement('div');
                 imageItem.className = 'image-item';
+                
+                const photographerCredit = image.photographer ? 
+                    `<small>Photo by <a href="${image.photographer_url}" target="_blank">${image.photographer}</a> on Unsplash</small>` : '';
+                
                 imageItem.innerHTML = `
                     <img src="${image.url}" alt="${image.alt}" title="${image.title}" loading="lazy" />
-                    <div class="image-caption">${image.title}</div>
+                    <div class="image-caption">
+                        <div class="image-title">${image.title}</div>
+                        ${photographerCredit}
+                    </div>
                 `;
                 imagesDiv.appendChild(imageItem);
             });

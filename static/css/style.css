@@ -36,6 +36,26 @@
     background: #f8f9fa;
 }
 
+.image-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.image-caption small {
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.image-caption a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.image-caption a:hover {
+    text-decoration: underline;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f8f9fa;
