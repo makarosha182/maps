@@ -81,8 +81,8 @@ class SivasAdvisor {
             // Remove typing indicator
             this.removeTypingIndicator();
             
-            // Add assistant response
-            this.addMessage(data.response, 'assistant', data.sources);
+            // Add assistant response with images
+            this.addMessage(data.response, 'assistant', data.sources, data.images);
             
         } catch (error) {
             console.error('Error:', error);
@@ -103,7 +103,7 @@ class SivasAdvisor {
         }
     }
     
-    addMessage(content, sender, sources = null) {
+    addMessage(content, sender, sources = null, images = null) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}`;
         
@@ -126,6 +126,24 @@ class SivasAdvisor {
         const textDiv = document.createElement('div');
         textDiv.innerHTML = this.formatMessage(content);
         messageContent.appendChild(textDiv);
+        
+        // Add images if available
+        if (images && images.length > 0) {
+            const imagesDiv = document.createElement('div');
+            imagesDiv.className = 'images-gallery';
+            
+            images.forEach(image => {
+                const imageItem = document.createElement('div');
+                imageItem.className = 'image-item';
+                imageItem.innerHTML = `
+                    <img src="${image.url}" alt="${image.alt}" title="${image.title}" loading="lazy" />
+                    <div class="image-caption">${image.title}</div>
+                `;
+                imagesDiv.appendChild(imageItem);
+            });
+            
+            messageContent.appendChild(imagesDiv);
+        }
         
         // Add sources if available
         if (sources && sources.length > 0) {

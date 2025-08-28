@@ -7,6 +7,7 @@ from typing import List, Dict, Optional
 import logging
 import os
 import anthropic
+from image_service import image_service
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -73,6 +74,7 @@ class QueryResponse(BaseModel):
     response: str
     sources: List[Dict]
     context_used: bool
+    images: List[Dict]
 
 class SuggestionsResponse(BaseModel):
     suggestions: List[str]
@@ -154,11 +156,15 @@ async def ask_question(query_request: QueryRequest):
     try:
         response = get_claude_response(query_request.query)
         
+        # Get relevant images for the response
+        images = image_service.get_images_for_response(query_request.query, response)
+        
         return QueryResponse(
             query=query_request.query,
             response=response,
             sources=[],  # No sources in simple version
-            context_used=False
+            context_used=False,
+            images=images
         )
     
     except Exception as e:
