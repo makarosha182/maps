@@ -24,5 +24,5 @@ CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200
 
 # API Configuration
-API_HOST = "localhost"
-API_PORT = 8000
+API_HOST = os.getenv("HOST", "0.0.0.0")
+API_PORT = int(os.getenv("PORT", 8000))
