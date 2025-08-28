@@ -38,12 +38,18 @@ async def startup_event():
     global claude_client
     try:
         if CLAUDE_API_KEY:
-            claude_client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
+            # Simple initialization without any extra parameters
+            claude_client = anthropic.Anthropic(
+                api_key=CLAUDE_API_KEY
+            )
             logger.info("Claude client initialized successfully!")
         else:
             logger.warning("CLAUDE_API_KEY not found")
     except Exception as e:
         logger.error(f"Failed to initialize Claude client: {e}")
+        logger.error(f"Error details: {type(e).__name__}: {str(e)}")
+        # Continue without Claude client
+        claude_client = None
 
 # Pydantic models
 class QueryRequest(BaseModel):
