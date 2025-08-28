@@ -1,0 +1,8 @@
+# Claude API Configuration
+CLAUDE_API_KEY=your_claude_api_key_here
+
+# Optional: Adjust these if needed
+API_HOST=localhost
+API_PORT=8000
+MAX_PAGES=50
+DELAY_BETWEEN_REQUESTS=1.0
