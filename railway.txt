@@ -1,0 +1,2 @@
+Railway deployment - force update
+Updated dependencies to fix sentence-transformers import error
