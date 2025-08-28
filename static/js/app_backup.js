@@ -68,8 +68,7 @@ class SivasAdvisor {
                 },
                 body: JSON.stringify({
                     query: query,
-                    language: 'en',
-                    use_generative_layout: true
+                    language: 'ru'
                 })
             });
             
@@ -82,14 +81,8 @@ class SivasAdvisor {
             // Remove typing indicator
             this.removeTypingIndicator();
             
-            // Handle different layout types
-            if (data.layout_type === 'generative' && data.layout) {
-                console.log('Using GENERATIVE LAYOUT:', data.layout);
-                this.addGenerativeMessage(data.query, data.layout);
-            } else {
-                console.log('Using STATIC LAYOUT (fallback)');
-                this.addMessage(data.response, 'assistant', data.sources, data.images);
-            }
+            // Add assistant response with images
+            this.addMessage(data.response, 'assistant', data.sources, data.images);
             
         } catch (error) {
             console.error('Error:', error);

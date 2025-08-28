@@ -8,7 +8,6 @@ import logging
 import os
 import anthropic
 from image_service import image_service
-from layout_service import GenerativeLayoutService
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -30,15 +29,14 @@ try:
 except RuntimeError:
     pass
 
-# Initialize Claude client and layout service
+# Initialize Claude client
 claude_client = None
-layout_service = None
 CLAUDE_API_KEY = os.getenv("CLAUDE_API_KEY")
 
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global claude_client, layout_service
+    global claude_client
     try:
         if CLAUDE_API_KEY:
             logger.info(f"Initializing Claude with API key: {CLAUDE_API_KEY[:10]}...")
@@ -59,28 +57,17 @@ async def startup_event():
                     # Method 3: Fallback without client
                     claude_client = None
                     logger.error("All Claude initialization methods failed")
-                    
-            # Initialize layout service if Claude client is available
-            if claude_client:
-                layout_service = GenerativeLayoutService(image_service)
-                logger.info("Layout service initialized successfully!")
-            else:
-                layout_service = None
-                logger.warning("Layout service not initialized - Claude client unavailable")
         else:
             logger.warning("CLAUDE_API_KEY not found")
             claude_client = None
-            layout_service = None
     except Exception as e:
         logger.error(f"Unexpected error in startup: {e}")
         claude_client = None
-        layout_service = None
 
 # Pydantic models
 class QueryRequest(BaseModel):
     query: str
     language: Optional[str] = "en"
-    use_generative_layout: Optional[bool] = True  # Flag to enable new system
 
 class QueryResponse(BaseModel):
     query: str
@@ -88,9 +75,6 @@ class QueryResponse(BaseModel):
     sources: List[Dict]
     context_used: bool
     images: List[Dict]
-    # New fields for generative layout
-    layout: Optional[List[Dict]] = None
-    layout_type: str = "static"  # "static" or "generative"
 
 class SuggestionsResponse(BaseModel):
     suggestions: List[str]
@@ -165,49 +149,23 @@ async def home(request: Request):
 
 @app.post("/api/ask", response_model=QueryResponse)
 async def ask_question(query_request: QueryRequest):
-    """Ask a question about Sivas with optional generative layout"""
+    """Ask a question about Sivas"""
     if not query_request.query.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty")
     
     try:
-        # Choose system based on request flag
-        if query_request.use_generative_layout and layout_service and claude_client:
-            logger.info("Using GENERATIVE LAYOUT system")
-            
-            # Reset used images for new conversation
-            layout_service.reset_used_images()
-            
-            # Generate response with dynamic layout
-            layout_response = layout_service.generate_response_with_layout(
-                query_request.query, claude_client
-            )
-            
-            return QueryResponse(
-                query=query_request.query,
-                response=layout_response['content'],
-                sources=[],
-                context_used=False,
-                images=[],  # Images are now part of layout
-                layout=layout_response['layout'],
-                layout_type="generative"
-            )
+        response = get_claude_response(query_request.query)
         
-        else:
-            logger.info("Using STATIC LAYOUT system (fallback)")
-            
-            # Fallback to old system
-            response = get_claude_response(query_request.query)
-            images = image_service.get_images_for_response(query_request.query, response)
-            
-            return QueryResponse(
-                query=query_request.query,
-                response=response,
-                sources=[],
-                context_used=False,
-                images=images,
-                layout=None,
-                layout_type="static"
-            )
+        # Get relevant images for the response
+        images = image_service.get_images_for_response(query_request.query, response)
+        
+        return QueryResponse(
+            query=query_request.query,
+            response=response,
+            sources=[],  # No sources in simple version
+            context_used=False,
+            images=images
+        )
     
     except Exception as e:
         logger.error(f"Error processing query: {e}")
