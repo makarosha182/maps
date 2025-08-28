@@ -23,49 +23,61 @@ class UnsplashImageService:
         }
         
     def extract_keywords_for_images(self, text: str, query: str) -> List[str]:
-        """Extract relevant keywords for image search from Claude's response and user query"""
+        """Extract relevant keywords for image search - ONLY Sivas related"""
         
-        # Common Sivas-related terms
-        sivas_terms = [
-            "sivas", "turkey", "turkish", "anatolia", "historical", "ancient",
-            "castle", "fortress", "museum", "mosque", "architecture", "traditional"
-        ]
-        
-        # Extract keywords from query and response
+        # Always start with Sivas as base
         keywords = []
-        
-        # Add Sivas as base term
-        keywords.append("sivas turkey")
         
         # Extract specific terms from query
         query_lower = query.lower()
-        if "castle" in query_lower or "fortress" in query_lower or "kale" in query_lower:
-            keywords.append("sivas castle turkey")
-            keywords.append("turkish fortress")
         
-        if "food" in query_lower or "cuisine" in query_lower or "eat" in query_lower:
-            keywords.append("turkish food")
-            keywords.append("traditional turkish cuisine")
-            
-        if "mosque" in query_lower or "cami" in query_lower or "religion" in query_lower:
-            keywords.append("sivas mosque turkey")
-            keywords.append("turkish mosque")
-            
-        if "museum" in query_lower or "history" in query_lower:
-            keywords.append("sivas museum turkey")
-            keywords.append("turkish historical site")
-            
-        if "architecture" in query_lower or "building" in query_lower:
-            keywords.append("sivas architecture turkey")
-            keywords.append("turkish traditional architecture")
-            
-        # If no specific terms found, use general terms
-        if len(keywords) == 1:  # Only "sivas turkey"
+        if "castle" in query_lower or "fortress" in query_lower or "kale" in query_lower:
+            keywords.extend([
+                "sivas castle turkey",
+                "sivas kale",
+                "sivas fortress"
+            ])
+        elif "food" in query_lower or "cuisine" in query_lower or "eat" in query_lower:
+            keywords.extend([
+                "sivas food turkey",
+                "sivas cuisine",
+                "sivas traditional food"
+            ])
+        elif "mosque" in query_lower or "cami" in query_lower or "religion" in query_lower:
+            keywords.extend([
+                "sivas mosque turkey",
+                "sivas ulu cami",
+                "sivas buruciye medrese"
+            ])
+        elif "museum" in query_lower or "history" in query_lower:
+            keywords.extend([
+                "sivas museum turkey",
+                "sivas archaeological museum",
+                "sivas history"
+            ])
+        elif "architecture" in query_lower or "building" in query_lower:
+            keywords.extend([
+                "sivas architecture turkey",
+                "sivas buildings",
+                "sivas historical architecture"
+            ])
+        elif "medrese" in query_lower or "madrasa" in query_lower:
+            keywords.extend([
+                "sivas medrese turkey",
+                "cifte minareli medrese sivas",
+                "sivas twin minaret"
+            ])
+        else:
+            # General Sivas terms
             keywords.extend([
                 "sivas city turkey",
-                "central anatolia turkey",
-                "turkish city"
+                "sivas turkey center",
+                "sivas anatolia"
             ])
+            
+        # Ensure we always have at least basic Sivas search
+        if not keywords:
+            keywords = ["sivas turkey"]
             
         return keywords[:3]  # Limit to 3 most relevant keywords
     
