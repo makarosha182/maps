@@ -1,0 +1,20 @@
+{
+  "name": "yandex-maps-ads",
+  "version": "1.0.0",
+  "description": "Мобильное приложение для размещения рекламы в Яндекс Картах",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "build": "echo 'Static site ready'",
+    "dev": "npx serve . -l 3000"
+  },
+  "keywords": ["yandex", "maps", "ads", "mobile", "webapp"],
+  "author": "makarosha182",
+  "license": "MIT",
+  "dependencies": {
+    "serve": "^14.0.0"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
